@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Espadín Azul — Sistema de Cajas</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{--gold:#C9A84C;--gold-dk:#8B6914;--dark:#181818;--dark2:#222;--dark3:#2a2a2a;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f5f3;min-height:100vh;}
+.topbar{background:var(--dark);padding:0 20px;display:flex;align-items:center;justify-content:space-between;height:52px;border-bottom:0.5px solid #2e2e2e;position:sticky;top:0;z-index:100;}
+.brand{display:flex;align-items:center;gap:10px;}
+.brand-mark{width:32px;height:32px;border-radius:8px;background:var(--gold);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:var(--dark);}
+.brand-name{font-size:14px;font-weight:500;color:#fff;}
+.brand-sub{font-size:11px;color:#666;margin-top:1px;}
+.lang-toggle{display:flex;background:#2a2a2a;border-radius:20px;padding:2px;border:0.5px solid #383838;}
+.lang-btn{padding:4px 11px;border-radius:16px;border:none;cursor:pointer;font-size:11px;font-weight:500;background:transparent;color:#666;transition:all 0.15s;}
+.lang-btn.on{background:var(--gold);color:var(--dark);}
+.nav{background:var(--dark2);display:flex;border-bottom:0.5px solid #2e2e2e;position:sticky;top:52px;z-index:99;}
+.nb{flex:1;padding:11px 8px;border:none;background:transparent;color:#666;font-size:12px;cursor:pointer;border-bottom:2px solid transparent;letter-spacing:0.2px;}
+.nb.on{color:var(--gold);border-bottom-color:var(--gold);}
+.page{display:none;padding:16px;max-width:900px;margin:0 auto;}
+.page.on{display:block;}
+.sg{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px;margin-bottom:16px;}
+.sc{background:#fff;border:0.5px solid #e8e8e6;border-radius:12px;padding:12px 14px;}
+.sl{font-size:11px;color:#888;margin-bottom:4px;letter-spacing:0.2px;}
+.sv{font-size:21px;font-weight:500;color:var(--gold-dk);}
+.ss{font-size:10px;color:#aaa;margin-top:2px;}
+.card{background:#fff;border:0.5px solid #e8e8e6;border-radius:12px;padding:14px;margin-bottom:12px;}
+.ct{font-size:13px;font-weight:500;color:#1a1a1a;margin-bottom:12px;letter-spacing:0.1px;}
+.frow{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;}
+.frow input,.frow select{font-size:12px;padding:7px 10px;border-radius:8px;border:0.5px solid #ddd;background:#fff;color:#1a1a1a;outline:none;}
+.frow input{flex:1;min-width:130px;}
+.frow input:focus,.frow select:focus{border-color:var(--gold);}
+table{width:100%;border-collapse:collapse;font-size:12px;}
+th{background:#fafaf8;padding:8px 10px;text-align:left;font-weight:500;font-size:11px;color:#888;border-bottom:0.5px solid #eee;letter-spacing:0.2px;}
+td{padding:8px 10px;border-bottom:0.5px solid #f0f0ee;color:#1a1a1a;}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:#fafaf8;cursor:pointer;}
+.badge{display:inline-block;padding:2px 8px;border-radius:99px;font-size:10px;font-weight:500;letter-spacing:0.2px;}
+.b-a{background:#eaf3de;color:#3b6d11;}
+.b-t{background:#faeeda;color:#854f0b;}
+.b-r{background:#e6f1fb;color:#185fa5;}
+.cbar{display:inline-flex;align-items:center;gap:5px;width:88px;}
+.cbg{flex:1;height:4px;background:#f0f0ee;border-radius:2px;overflow:hidden;}
+.cf{height:100%;border-radius:2px;background:var(--gold);}
+.cf.w{background:#e24b4a;}
+.pg{display:flex;gap:5px;justify-content:flex-end;margin-top:10px;align-items:center;font-size:11px;color:#888;}
+.pb{background:#fff;border:0.5px solid #ddd;padding:4px 9px;border-radius:8px;cursor:pointer;font-size:11px;color:#333;}
+.pb.on{border-color:var(--gold);color:var(--gold-dk);}
+.pb:disabled{opacity:0.4;cursor:default;}
+.scan-area{background:var(--dark);border-radius:12px;padding:28px 20px;text-align:center;margin-bottom:12px;}
+.scan-frame{width:60px;height:60px;border:2px solid var(--gold);border-radius:10px;margin:0 auto 14px;display:flex;align-items:center;justify-content:center;}
+.scan-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:3px;padding:8px;}
+.sdot{background:var(--gold);border-radius:1px;}
+.st{font-size:14px;font-weight:500;color:#fff;margin-bottom:4px;}
+.ss2{font-size:12px;color:#666;margin-bottom:16px;}
+.sin-row{display:flex;gap:8px;}
+.sin{flex:1;background:#222;border:0.5px solid #383838;border-radius:8px;padding:9px 12px;color:#fff;font-size:13px;font-family:monospace;letter-spacing:0.5px;}
+.sin:focus{outline:none;border-color:var(--gold);}
+.sbtn{background:var(--gold);border:none;border-radius:8px;padding:9px 20px;font-size:13px;font-weight:500;color:var(--dark);cursor:pointer;}
+.dw{background:#fff;border:0.5px solid #e8e8e6;border-radius:12px;padding:16px;}
+.dh{display:flex;align-items:center;gap:12px;margin-bottom:14px;padding-bottom:12px;border-bottom:0.5px solid #f0f0ee;}
+.dqr{width:42px;height:42px;background:var(--dark);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:9px;color:var(--gold);font-family:monospace;letter-spacing:0.3px;}
+.dr{display:flex;justify-content:space-between;padding:7px 0;border-bottom:0.5px solid #f0f0ee;font-size:13px;}
+.dr:last-child{border-bottom:none;}
+.dk{color:#888;}
+.dv{font-weight:500;color:#1a1a1a;}
+.hi{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:0.5px solid #f0f0ee;}
+.hi:last-child{border-bottom:none;}
+.hd{width:7px;height:7px;border-radius:50%;margin-top:5px;flex-shrink:0;}
+.hdate{font-size:11px;color:#aaa;margin-top:1px;}
+.hevent{font-size:13px;color:#1a1a1a;}
+.hloc{font-size:11px;color:#888;}
+.cs-box{background:#fafaf8;border:0.5px dashed #ddd;border-radius:10px;padding:12px;text-align:center;margin-top:12px;}
+.cs-pill{display:inline-block;background:#faeeda;color:#854f0b;font-size:10px;padding:2px 8px;border-radius:99px;margin-bottom:6px;letter-spacing:0.2px;}
+.cs-txt{font-size:12px;color:#888;}
+.loc-item{background:#fff;border:0.5px solid #e8e8e6;border-radius:12px;padding:11px 14px;display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
+.ln{font-size:13px;font-weight:500;color:#1a1a1a;}
+.lbar{width:90px;height:4px;background:#f0f0ee;border-radius:2px;overflow:hidden;margin-top:4px;}
+.lf{height:100%;border-radius:2px;background:var(--gold);}
+.lc{font-size:12px;color:#888;}
+.bk{background:transparent;border:0.5px solid #ddd;padding:5px 13px;border-radius:8px;cursor:pointer;font-size:12px;color:#888;margin-bottom:12px;letter-spacing:0.1px;}
+.promo-page{background:var(--dark);border-radius:12px;padding:48px 24px;text-align:center;margin:20px 0;}
+.promo-logo{font-size:28px;font-weight:500;color:var(--gold);margin-bottom:8px;letter-spacing:0.3px;}
+.promo-tag{font-size:14px;color:#666;margin-bottom:28px;}
+.promo-box{background:#222;border:0.5px solid #333;border-radius:12px;padding:20px 24px;margin-bottom:24px;color:#aaa;font-size:14px;line-height:1.8;max-width:400px;margin-left:auto;margin-right:auto;}
+.promo-box strong{color:var(--gold);}
+@media(max-width:600px){.sg{grid-template-columns:1fr 1fr;}.page{padding:12px;}}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">
+    <div class="brand-mark">EA</div>
+    <div>
+      <div class="brand-name">Espadín Azul</div>
+      <div class="brand-sub" id="bsub">Sistema de cajas retornables</div>
+    </div>
+  </div>
+  <div class="lang-toggle">
+    <button class="lang-btn on" onclick="setLang('es')">ES</button>
+    <button class="lang-btn" onclick="setLang('en')">EN</button>
+  </div>
+</div>
+
+<div class="nav">
+  <button class="nb on" id="nb-d" onclick="go('dashboard')"><span id="nt-d">Dashboard</span></button>
+  <button class="nb" id="nb-s" onclick="go('scan')"><span id="nt-s">Escanear</span></button>
+  <button class="nb" id="nb-b" onclick="go('boxes')"><span id="nt-b">Cajas</span></button>
+  <button class="nb" id="nb-l" onclick="go('locations')"><span id="nt-l">Ubicaciones</span></button>
+</div>
+
+<div id="pg-dashboard" class="page on">
+  <div class="sg" id="stat-grid"></div>
+  <div class="card"><div class="ct" id="t-sdist">Distribución de estado</div><canvas id="statusChart" height="130"></canvas></div>
+  <div class="card"><div class="ct" id="t-cdist">Distribución de ciclos</div><canvas id="cycleChart" height="100"></canvas></div>
+</div>
+
+<div id="pg-scan" class="page">
+  <div class="scan-area">
+    <div class="scan-frame">
+      <div class="scan-grid">
+        <div class="sdot"></div><div style="background:transparent"></div><div class="sdot"></div>
+        <div style="background:transparent"></div><div class="sdot" style="opacity:0.4"></div><div style="background:transparent"></div>
+        <div class="sdot"></div><div style="background:transparent"></div><div class="sdot"></div>
+      </div>
+    </div>
+    <div class="st" id="t-stitle">Escanea o ingresa el serial</div>
+    <div class="ss2" id="t-ssub">Apunta la cámara al QR o escribe el número de caja</div>
+    <div class="sin-row">
+      <input class="sin" id="scanIn" placeholder="BOX-PP-000001" oninput="this.value=this.value.toUpperCase()" onkeydown="if(event.key==='Enter')doScan()">
+      <button class="sbtn" onclick="doScan()" id="t-sbtn">Buscar</button>
+    </div>
+  </div>
+  <div id="scan-result"></div>
+</div>
+
+<div id="pg-boxes" class="page">
+  <div class="frow">
+    <input type="text" id="srch" placeholder="Buscar serial..." oninput="renderTable()">
+    <select id="sf" onchange="renderTable()">
+      <option value="" id="t-ast">Todos los estados</option>
+      <option value="Activa">Activa</option>
+      <option value="En tránsito">En tránsito</option>
+      <option value="Retornada">Retornada</option>
+    </select>
+    <select id="cf2" onchange="renderTable()">
+      <option value="" id="t-ac">Todos los ciclos</option>
+      <option value="low">0 – 20</option>
+      <option value="mid">21 – 50</option>
+      <option value="high">51 – 70</option>
+      <option value="crit">70+</option>
+    </select>
+  </div>
+  <div style="border-radius:12px;border:0.5px solid #e8e8e6;overflow:hidden;background:#fff;">
+    <table><thead><tr>
+      <th id="th-s">Serial</th>
+      <th id="th-st">Estado</th>
+      <th id="th-c">Ciclos</th>
+      <th id="th-l">Ubicación</th>
+      <th id="th-d">Último escaneo</th>
+    </tr></thead>
+    <tbody id="tbody"></tbody></table>
+  </div>
+  <div class="pg" id="pgn"></div>
+</div>
+
+<div id="pg-detail" class="page">
+  <button class="bk" id="t-back" onclick="go('boxes')">Volver</button>
+  <div id="det"></div>
+</div>
+
+<div id="pg-locations" class="page">
+  <div class="ct" id="t-loctitle" style="margin-bottom:12px;">Cajas por ubicación</div>
+  <div id="loc-list"></div>
+</div>
+
+<div id="pg-public" class="page">
+  <div class="promo-page">
+    <div class="promo-logo">Espadín Azul</div>
+    <div class="promo-tag" id="t-promo-tag">Sistema de cajas retornables</div>
+    <div class="promo-box">
+      Esta caja forma parte de nuestro sistema inteligente de empaques retornables.<br>
+      Trazada, verificada y optimizada en cada ciclo.<br><br>
+      <strong>Reduce residuos. Controla costos. Escala con inteligencia.</strong>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script>
+const LOCS=['CDMX — Planta Vallejo','Guadalajara — CD Sur','Monterrey — CD Norte','Puebla — Planta','Querétaro — Hub','Tijuana — CD'];
+const STATS=['Activa','En tránsito','Retornada'];
+const SW=[0.6,0.28,0.12];
+const EVTS_ES=['Escaneo de salida','Recepción en planta','Lavado y verificación','Reenvío a cliente'];
+const EVTS_EN=['Exit scan','Plant reception','Wash & inspection','Client reshipment'];
+const COLS_H=['#C9A84C','#3B6D11','#185FA5','#854F0B'];
+
+function rnd(a,b){return Math.floor(Math.random()*(b-a+1))+a;}
+function pw(a,w){let r=Math.random(),s=0;for(let i=0;i<w.length;i++){s+=w[i];if(r<s)return a[i];}return a[a.length-1];}
+function rd(d){let x=new Date();x.setDate(x.getDate()-rnd(0,d));return x.toISOString().split('T')[0];}
+
+const boxes=Array.from({length:500},(_,i)=>({
+  serial:'BOX-PP-'+String(i+1).padStart(6,'0'),
+  cycles:rnd(0,78),status:pw(STATS,SW),
+  location:LOCS[rnd(0,LOCS.length-1)],
+  lastScan:rd(30),manufactured:'2025-01-15',
+  history:[0,1,2,3].map(j=>({date:rd(j*7+2),evt_es:EVTS_ES[j],evt_en:EVTS_EN[j],loc:LOCS[rnd(0,LOCS.length-1)],col:COLS_H[j]}))
+}));
+
+const TX={
+  es:{bsub:'Sistema de cajas retornables',ntd:'Dashboard',nts:'Escanear',ntb:'Cajas',ntl:'Ubicaciones',
+    st1:'Total cajas',st2:'Activas',st3:'Ciclos promedio',st4:'Críticas (≥70)',tgt:'objetivo: 70',
+    sdist:'Distribución de estado',cdist:'Distribución de ciclos',
+    stitle:'Escanea o ingresa el serial',ssub:'Apunta la cámara al QR o escribe el número de caja',sbtn:'Buscar',
+    ast:'Todos los estados',ac:'Todos los ciclos',
+    ths:'Serial',thst:'Estado',thc:'Ciclos',thl:'Ubicación',thd:'Último escaneo',
+    back:'Volver',loctitle:'Cajas por ubicación',
+    dloc:'Ubicación',dcyc:'Ciclos usados',dscn:'Último escaneo',dmfg:'Fabricación',dhist:'Historial',
+    cspill:'Próximamente',cstxt:'Actualización de estado al escanear — próxima versión',
+    notfound:'Caja no encontrada. Verifica el serial.',boxes:'cajas',
+    slab:['Activa','En tránsito','Retornada'],ptag:'Sistema de cajas retornables'},
+  en:{bsub:'Returnable box management system',ntd:'Dashboard',nts:'Scan',ntb:'Boxes',ntl:'Locations',
+    st1:'Total boxes',st2:'Active',st3:'Avg cycles',st4:'Critical (≥70)',tgt:'target: 70',
+    sdist:'Status distribution',cdist:'Cycle distribution',
+    stitle:'Scan or enter serial',ssub:'Point camera at QR or type the box number',sbtn:'Search',
+    ast:'All statuses',ac:'All cycles',
+    ths:'Serial',thst:'Status',thc:'Cycles',thl:'Location',thd:'Last scan',
+    back:'Back',loctitle:'Boxes by location',
+    dloc:'Location',dcyc:'Cycles used',dscn:'Last scan',dmfg:'Manufactured',dhist:'Movement history',
+    cspill:'Coming soon',cstxt:'Update box status on scan — available in next version',
+    notfound:'Box not found. Please check the serial.',boxes:'boxes',
+    slab:['Active','In transit','Returned'],ptag:'Returnable box management system'}
+};
+const BMAP=['b-a','b-t','b-r'];
+let lang='es',curPg=1;const PER=15;
+function t(k){return TX[lang][k]||k;}
+function sl(s){const i=STATS.indexOf(s);return i>=0?t('slab')[i]:s;}
+function bc(s){return BMAP[STATS.indexOf(s)]||'b-a';}
+
+function setLang(l){
+  lang=l;
+  document.querySelectorAll('.lang-btn').forEach((b,i)=>b.classList.toggle('on',(i===0&&l==='es')||(i===1&&l==='en')));
+  applyLang();renderTable();buildStats();buildLocs();
+}
+function applyLang(){
+  const map={bsub:'bsub','nt-d':'ntd','nt-s':'nts','nt-b':'ntb','nt-l':'ntl','t-stitle':'stitle','t-ssub':'ssub','t-sbtn':'sbtn','t-ast':'ast','t-ac':'ac','th-s':'ths','th-st':'thst','th-c':'thc','th-l':'thl','th-d':'thd','t-back':'back','t-sdist':'sdist','t-cdist':'cdist','t-loctitle':'loctitle','t-promo-tag':'ptag'};
+  Object.entries(map).forEach(([id,key])=>{const el=document.getElementById(id);if(el)el.textContent=t(key);});
+  document.getElementById('srch').placeholder=lang==='es'?'Buscar serial...':'Search serial...';
+}
+function buildStats(){
+  const active=boxes.filter(b=>b.status==='Activa').length;
+  const avg=(boxes.reduce((s,b)=>s+b.cycles,0)/500).toFixed(1);
+  const crit=boxes.filter(b=>b.cycles>=70).length;
+  document.getElementById('stat-grid').innerHTML=[
+    {l:t('st1'),v:'500',s:'demo'},{l:t('st2'),v:active,s:(active/5).toFixed(0)+'%'},
+    {l:t('st3'),v:avg,s:t('tgt')},{l:t('st4'),v:crit,s:''},
+  ].map(d=>`<div class="sc"><div class="sl">${d.l}</div><div class="sv">${d.v}</div><div class="ss">${d.s}</div></div>`).join('');
+}
+let chartsBuilt=false;
+function buildCharts(){
+  if(chartsBuilt)return;chartsBuilt=true;
+  const sc=STATS.map(s=>boxes.filter(b=>b.status===s).length);
+  new Chart(document.getElementById('statusChart'),{type:'doughnut',data:{labels:STATS,datasets:[{data:sc,backgroundColor:['#C9A84C','#378ADD','#3B6D11'],borderWidth:0}]},options:{plugins:{legend:{position:'right',labels:{font:{size:11},boxWidth:10}}},cutout:'62%',responsive:true,maintainAspectRatio:true}});
+  const bins=['0–10','11–20','21–30','31–40','41–50','51–60','61–70','70+'];
+  const bc2=bins.map((_,i)=>i<7?boxes.filter(b=>b.cycles>=i*10&&b.cycles<(i+1)*10).length:boxes.filter(b=>b.cycles>=70).length);
+  new Chart(document.getElementById('cycleChart'),{type:'bar',data:{labels:bins,datasets:[{data:bc2,backgroundColor:bc2.map((_,i)=>i>=7?'#E24B4A':'#C9A84C'),borderWidth:0,borderRadius:3}]},options:{plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:{font:{size:10}}},y:{grid:{color:'rgba(0,0,0,0.05)'},ticks:{font:{size:10}}}},responsive:true,maintainAspectRatio:true}});
+}
+function getFiltered(){
+  const q=(document.getElementById('srch').value||'').toLowerCase();
+  const sf=document.getElementById('sf').value;
+  const cf=document.getElementById('cf2').value;
+  return boxes.filter(b=>{
+    if(q&&!b.serial.toLowerCase().includes(q))return false;
+    if(sf&&b.status!==sf)return false;
+    if(cf==='low'&&b.cycles>20)return false;
+    if(cf==='mid'&&(b.cycles<21||b.cycles>50))return false;
+    if(cf==='high'&&(b.cycles<51||b.cycles>70))return false;
+    if(cf==='crit'&&b.cycles<71)return false;
+    return true;
+  });
+}
+function cybar(c){const p=Math.min(c/70*100,100).toFixed(0);const w=c>=70?' w':'';return `<div class="cbar">${c}<div class="cbg"><div class="cf${w}" style="width:${p}%"></div></div></div>`;}
+function renderTable(){curPg=1;renderSlice(getFiltered());}
+function renderSlice(f){
+  const tp=Math.ceil(f.length/PER);
+  const s=f.slice((curPg-1)*PER,curPg*PER);
+  document.getElementById('tbody').innerHTML=s.map(b=>`<tr onclick="showDet('${b.serial}')">
+    <td style="font-family:monospace;font-size:11px;color:var(--gold-dk);letter-spacing:0.3px">${b.serial}</td>
+    <td><span class="badge ${bc(b.status)}">${sl(b.status)}</span></td>
+    <td>${cybar(b.cycles)}</td>
+    <td style="font-size:11px;color:#888">${b.location.split('—')[0].trim()}</td>
+    <td style="font-size:11px;color:#aaa">${b.lastScan}</td>
+  </tr>`).join('');
+  let p=`<span>${f.length} ${t('boxes')}</span>`;
+  p+=`<button class="pb" onclick="chPg(${curPg-1})" ${curPg===1?'disabled':''}>&#8249;</button>`;
+  for(let i=Math.max(1,curPg-2);i<=Math.min(tp,curPg+2);i++) p+=`<button class="pb ${i===curPg?'on':''}" onclick="chPg(${i})">${i}</button>`;
+  p+=`<button class="pb" onclick="chPg(${curPg+1})" ${curPg===tp?'disabled':''}>&#8250;</button>`;
+  document.getElementById('pgn').innerHTML=p;
+}
+function chPg(p){const f=getFiltered();const tp=Math.ceil(f.length/PER);if(p<1||p>tp)return;curPg=p;renderSlice(f);}
+function showDet(serial){
+  const b=boxes.find(x=>x.serial===serial);if(!b)return;
+  const pct=Math.min(b.cycles/70*100,100).toFixed(0);
+  document.getElementById('det').innerHTML=`
+    <div class="dw">
+      <div class="dh">
+        <div class="dqr">QR</div>
+        <div><div style="font-size:15px;font-weight:500;color:#1a1a1a">${b.serial}</div>
+        <div style="font-size:11px;color:#aaa">${t('dmfg')}: ${b.manufactured}</div></div>
+        <div style="margin-left:auto"><span class="badge ${bc(b.status)}">${sl(b.status)}</span></div>
+      </div>
+      <div class="dr"><span class="dk">${t('dloc')}</span><span class="dv">${b.location}</span></div>
+      <div class="dr"><span class="dk">${t('dcyc')}</span><span class="dv" style="color:${b.cycles>=70?'#e24b4a':'var(--gold-dk)'}">${b.cycles} / 70 (${pct}%)</span></div>
+      <div class="dr"><span class="dk">${t('dscn')}</span><span class="dv">${b.lastScan}</span></div>
+      <div style="margin-top:14px">
+        <div style="font-size:11px;font-weight:500;color:#aaa;letter-spacing:0.3px;text-transform:uppercase;margin-bottom:8px">${t('dhist')}</div>
+        ${b.history.map(h=>`<div class="hi"><div class="hd" style="background:${h.col}"></div><div><div class="hevent">${lang==='es'?h.evt_es:h.evt_en}</div><div class="hloc">${h.loc}</div><div class="hdate">${h.date}</div></div></div>`).join('')}
+      </div>
+      <div class="cs-box"><div class="cs-pill">${t('cspill')}</div><div class="cs-txt">${t('cstxt')}</div></div>
+    </div>`;
+  go('detail');
+}
+function doScan(){
+  const v=document.getElementById('scanIn').value.trim().toUpperCase();
+  const b=boxes.find(x=>x.serial===v);
+  const res=document.getElementById('scan-result');
+  if(!b){res.innerHTML=`<div style="text-align:center;padding:16px;font-size:13px;color:#e24b4a;">${t('notfound')}</div>`;return;}
+  const pct=Math.min(b.cycles/70*100,100).toFixed(0);
+  res.innerHTML=`<div class="dw">
+    <div class="dh">
+      <div class="dqr">QR</div>
+      <div><div style="font-size:15px;font-weight:500;color:#1a1a1a">${b.serial}</div>
+      <div style="font-size:11px;color:#aaa">${b.location}</div></div>
+      <div style="margin-left:auto"><span class="badge ${bc(b.status)}">${sl(b.status)}</span></div>
+    </div>
+    <div class="dr"><span class="dk">${t('dcyc')}</span><span class="dv" style="color:${b.cycles>=70?'#e24b4a':'var(--gold-dk)'}">${b.cycles} / 70 (${pct}%)</span></div>
+    <div class="dr"><span class="dk">${t('dscn')}</span><span class="dv">${b.lastScan}</span></div>
+    ${b.history.slice(0,2).map(h=>`<div class="hi"><div class="hd" style="background:${h.col}"></div><div><div class="hevent">${lang==='es'?h.evt_es:h.evt_en}</div><div class="hdate">${h.date}</div></div></div>`).join('')}
+    <div class="cs-box"><div class="cs-pill">${t('cspill')}</div><div class="cs-txt">${t('cstxt')}</div></div>
+  </div>`;
+}
+function buildLocs(){
+  const counts=LOCS.map(l=>({l,n:boxes.filter(b=>b.location===l).length}));
+  const mx=Math.max(...counts.map(x=>x.n));
+  document.getElementById('loc-list').innerHTML=counts.map(x=>`
+    <div class="loc-item">
+      <div style="flex:1"><div class="ln">${x.l}</div><div class="lbar"><div class="lf" style="width:${(x.n/mx*100).toFixed(0)}%"></div></div></div>
+      <div class="lc">${x.n} ${t('boxes')}</div>
+    </div>`).join('');
+}
+function go(name){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
+  document.getElementById('pg-'+name).classList.add('on');
+  ['d','s','b','l'].forEach(k=>document.getElementById('nb-'+k).classList.remove('on'));
+  const m={dashboard:'d',scan:'s',boxes:'b',locations:'l'};
+  if(m[name])document.getElementById('nb-'+m[name]).classList.add('on');
+  if(name==='dashboard')buildCharts();
+}
+// Handle direct QR scan routing: /?box=BOX-PP-000001
+(function(){
+  const params=new URLSearchParams(window.location.search);
+  const box=params.get('box');
+  if(box){
+    const b=boxes.find(x=>x.serial===box.toUpperCase());
+    if(b){showDet(b.serial);}
+    else{go('public');}
+  }
+})();
+buildStats();buildCharts();buildLocs();renderTable();applyLang();
+</script>
+</body>
+</html>
